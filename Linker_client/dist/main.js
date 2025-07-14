@@ -1,6 +1,7 @@
 import { setupSendPage } from "./sendText.js";
 import { setupReceivePage } from "./receiveText.js";
 import { setupProfilePage } from "./profilePage.js";
+import { setupSearchPage } from "./searchPage.js";
 function switchPage(pageId) {
     const sections = document.querySelectorAll("main > section");
     sections.forEach(section => {
@@ -14,6 +15,9 @@ function switchPage(pageId) {
     }
     else if (pageId === "profile") {
         setupProfilePage();
+    }
+    else if (pageId === "search") {
+        setupSearchPage();
     }
 }
 // Making a function accessible from HTML

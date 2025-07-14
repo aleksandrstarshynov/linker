@@ -24,3 +24,11 @@ async def save_fragment_to_supabase(fragment_id: str, text: str):
 async def fetch_all_fragments():
     response = await supabase_client.from_("fragments").select("*").execute()
     return response.data
+
+# search fragments by text
+async def search_fragments(search_term: str):
+    response = await supabase_client.from_("fragments") \
+        .select("*") \
+        .ilike("text", f"%{search_term}%") \
+        .execute()
+    return response.data

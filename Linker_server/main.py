@@ -1,9 +1,11 @@
 import uuid
 from fastapi import FastAPI
+from fastapi import Query
 from fastapi.middleware.cors import CORSMiddleware
 from models import FragmentIn
 from supabase_client import save_fragment_to_supabase
 from supabase_client import fetch_all_fragments
+from supabase_client import search_fragments
 
 app = FastAPI()
 
@@ -31,3 +33,9 @@ async def submit_fragment(fragment: FragmentIn):
 async def get_fragments():
     fragments = await fetch_all_fragments()
     return {"fragments": fragments}
+
+# Endpoint for getting fragments by text
+@app.get("/search")
+async def search(query: str = Query(...)):
+    results = await search_fragments(query)
+    return {"results": results}

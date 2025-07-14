@@ -5,10 +5,10 @@ export function setupSendPage(): void {
   if (!section) return;
 
   section.innerHTML = `
-    <h1>Отправить текст</h1>
-    <textarea id="textInput" rows="5" cols="50" placeholder="Введите текст..."></textarea>
+    <h1>Send text</h1>
+    <textarea id="textInput" rows="5" cols="50" placeholder="Enter text..."></textarea>
     <br />
-    <button id="sendBtn">Отправить</button>
+    <button id="sendBtn">Send</button>
     <div id="sendResult"></div>
   `;
 
@@ -19,7 +19,7 @@ export function setupSendPage(): void {
   button.addEventListener("click", async () => {
     const text = input.value.trim();
     if (!text) {
-      result.textContent = "Введите текст!";
+      result.textContent = "Enter text!";
       return;
     }
 
@@ -30,12 +30,12 @@ export function setupSendPage(): void {
         body: JSON.stringify({ text }),
       });
 
-      if (!response.ok) throw new Error("Ошибка отправки");
+      if (!response.ok) throw new Error("Sending error");
 
       const data = await response.json();
-      result.textContent = `Успешно: ${data.message}`;
+      result.textContent = `Successfully: ${data.message}`;
     } catch (error) {
-      result.textContent = "Ошибка при отправке текста.";
+      result.textContent = "Error sending text.";
     }
   });
 }

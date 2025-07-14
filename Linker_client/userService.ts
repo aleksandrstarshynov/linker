@@ -9,8 +9,8 @@ export function fetchUserProfile(): Promise<UserProfile> {
     setTimeout(() => {
       resolve({
         id: 42,
-        name: "Иван Петров",
-        email: "ivan@example.com"
+        name: "Oleksandr Starshynov",
+        email: "aleksandrstarshynov@gmail.com"
       });
     }, 500);
   });

@@ -4,19 +4,19 @@ export function setupProfilePage() {
     if (!section)
         return;
     section.innerHTML = `
-    <h1>Профиль пользователя</h1>
-    <div id="profileInfo">Загрузка...</div>
+    <h1>User profile</h1>
+    <div id="profileInfo">Loading...</div>
   `;
     const info = document.getElementById("profileInfo");
     fetchUserProfile()
         .then(data => {
         info.innerHTML = `
-        <p><strong>Имя:</strong> ${data.name}</p>
+        <p><strong>Name:</strong> ${data.name}</p>
         <p><strong>Email:</strong> ${data.email}</p>
         <p><strong>ID:</strong> ${data.id}</p>
       `;
     })
         .catch(() => {
-        info.innerHTML = "Ошибка при загрузке профиля.";
+        info.innerHTML = "Error loading profile.";
     });
 }
