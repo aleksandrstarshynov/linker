@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend на TypeScript</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <button onclick="switchPage('send')">Save text</button>
+    <button onclick="switchPage('receive')">Receive texts</button>
+    <button onclick="switchPage('profile')">Profile</button>
+  </nav>
+
+  <main>
+    <section id="sendPage"></section>
+    <section id="receivePage" hidden></section>
+    <section id="profilePage" hidden></section>
+  </main>
+
+<script type="module" src="dist/main.js"></script>
+</body>
+</html>
