@@ -8,5 +8,5 @@
     "strict": true,
     "esModuleInterop": true
   },
-  "include": ["*.ts"]
+  "include": ["**/*.ts"]
 }

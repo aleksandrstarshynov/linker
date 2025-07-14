@@ -18,5 +18,10 @@ function switchPage(pageId: string): void {
   }
 }
 
+// Making a function accessible from HTML
 (window as any).switchPage = switchPage;
-switchPage("send");
+
+// Run only after DOM is fully loaded
+window.addEventListener('DOMContentLoaded', () => {
+  switchPage("send");
+});
