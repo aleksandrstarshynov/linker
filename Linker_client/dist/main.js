@@ -1,7 +1,6 @@
 import { setupSendPage } from "./sendText.js";
 import { setupReceivePage } from "./receiveText.js";
 import { setupProfilePage } from "./profilePage.js";
-
 function switchPage(pageId) {
     const sections = document.querySelectorAll("main > section");
     sections.forEach(section => {
