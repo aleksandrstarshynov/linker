@@ -13,23 +13,27 @@ export function setupReceivePage() {
     if (!section)
         return;
     section.innerHTML = `
-    <h1>Получить ответ</h1>
-    <button id="receiveBtn">Получить</button>
+    <h1>List of fragments</h1>
+    <button id="receiveBtn">Get fragments</button>
     <div id="receiveResult"></div>
   `;
     const button = document.getElementById("receiveBtn");
     const result = document.getElementById("receiveResult");
     button.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
-        result.textContent = "Загрузка...";
+        result.textContent = "Loading...";
         try {
-            const response = yield fetch(`${API_BASE_URL}/response`);
+            const response = yield fetch(`${API_BASE_URL}/get_fragments`);
             if (!response.ok)
-                throw new Error("Ошибка получения");
+                throw new Error("");
             const data = yield response.json();
-            result.textContent = `Ответ: ${data.response}`;
+            const fragments = data.fragments;
+            // Display all fragments as a list
+            result.innerHTML = "<ul>" +
+                fragments.map((f) => `<li>${f.text}</li>`).join("") +
+                "</ul>";
         }
         catch (error) {
-            result.textContent = "Ошибка при получении ответа.";
+            result.textContent = "Error getting fragments.";
         }
     }));
 }

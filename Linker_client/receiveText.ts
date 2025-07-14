@@ -5,8 +5,8 @@ export function setupReceivePage(): void {
   if (!section) return;
 
   section.innerHTML = `
-    <h1>Получить ответ</h1>
-    <button id="receiveBtn">Получить</button>
+    <h1>List of fragments</h1>
+    <button id="receiveBtn">Get fragments</button>
     <div id="receiveResult"></div>
   `;
 
@@ -14,16 +14,22 @@ export function setupReceivePage(): void {
   const result = document.getElementById("receiveResult") as HTMLDivElement;
 
   button.addEventListener("click", async () => {
-    result.textContent = "Загрузка...";
+    result.textContent = "Loading...";
 
     try {
-      const response = await fetch(`${API_BASE_URL}/response`);
-      if (!response.ok) throw new Error("Ошибка получения");
+      const response = await fetch(`${API_BASE_URL}/get_fragments`);
+      if (!response.ok) throw new Error("");
 
       const data = await response.json();
-      result.textContent = `Ответ: ${data.response}`;
+      const fragments = data.fragments;
+
+      // Display all fragments as a list
+      result.innerHTML = "<ul>" + 
+        fragments.map((f: any) => `<li>${f.text}</li>`).join("") + 
+        "</ul>";
+
     } catch (error) {
-      result.textContent = "Ошибка при получении ответа.";
+      result.textContent = "Error getting fragments.";
     }
   });
 }
