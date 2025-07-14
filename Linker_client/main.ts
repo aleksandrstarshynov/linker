@@ -1,30 +1,32 @@
-import { setupSendPage } from "./sendText.js";
-import { setupReceivePage } from "./receiveText.js";
+// Import page rendering functions
+import { setupDashboardPage } from "./dashboardPage.js";
+import { setupFragmentsPage } from "./fragmentsPage.js";
 import { setupProfilePage } from "./profilePage.js";
-import { setupSearchPage } from "./searchPage.js";
+import { setupMainPage } from "./mainPage.js";
 
+// Function to switch between visible pages
 function switchPage(pageId: string): void {
   const sections = document.querySelectorAll<HTMLElement>("main > section");
 
+  // Hide all sections except the active one
   sections.forEach(section => {
     section.hidden = section.id !== `${pageId}Page`;
   });
 
-  if (pageId === "send") {
-    setupSendPage();
-  } else if (pageId === "receive") {
-    setupReceivePage();
+  // Initialize the active page
+  if (pageId === "main") {
+    setupMainPage();
+  } else if (pageId === "dashboard") {
+    setupDashboardPage();
+  } else if (pageId === "fragments") {
+    setupFragmentsPage();
   } else if (pageId === "profile") {
     setupProfilePage();
-  } else if (pageId === "search") {
-    setupSearchPage();
-}
+  }
 }
 
-// Making a function accessible from HTML
+// Expose the switchPage function globally for navigation buttons
 (window as any).switchPage = switchPage;
 
-// Run only after DOM is fully loaded
-window.addEventListener('DOMContentLoaded', () => {
-  switchPage("send");
-});
+// Show main page when application starts
+switchPage("main");
