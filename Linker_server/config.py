@@ -1,0 +1,2 @@
+SUPABASE_URL = "https://rolzpgectinslfvpbznz.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvbHpwZ2VjdGluc2xmdnBiem56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0OTE1NzUsImV4cCI6MjA2ODA2NzU3NX0.1m9A51H6cAumH_Kkt2Sx5wVuSyAkrRxs9215C02auWI"
