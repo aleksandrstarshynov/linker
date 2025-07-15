@@ -16,12 +16,15 @@ export function setupSendPage() {
     <h1>Send text</h1>
     <textarea id="textInput" rows="5" cols="50" placeholder="Enter text..."></textarea>
     <br />
+    <input id="sourceInput" type="text" placeholder="Источник (необязательно)" />
+    <br/>
     <button id="sendBtn">Send</button>
     <div id="sendResult"></div>
   `;
     const button = document.getElementById("sendBtn");
     const input = document.getElementById("textInput");
     const result = document.getElementById("sendResult");
+    const sourceInput = document.getElementById("sourceInput");
     button.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
         const text = input.value.trim();
         if (!text) {
@@ -29,10 +32,11 @@ export function setupSendPage() {
             return;
         }
         try {
+            const source = sourceInput.value.trim();
             const response = yield fetch(`${API_BASE_URL}/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text }),
+                body: JSON.stringify({ text, source }),
             });
             if (!response.ok)
                 throw new Error("Sending error");

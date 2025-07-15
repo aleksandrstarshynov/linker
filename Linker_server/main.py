@@ -6,6 +6,7 @@ from models import FragmentIn
 from supabase_client import save_fragment_to_supabase
 from supabase_client import fetch_all_fragments
 from supabase_client import search_fragments
+from process_fragment import process_incoming_fragment
 
 app = FastAPI()
 
@@ -21,12 +22,28 @@ app.add_middleware(
 # Endpoint for sending text and saving it in DB
 @app.post("/submit")
 async def submit_fragment(fragment: FragmentIn):
-    fragment_id = str(uuid.uuid4())
+    source = "User input"
 
-    # Saving text in Supabase
-    await save_fragment_to_supabase(fragment_id, fragment.text)
+    # run orchestrator
+    fragments = process_incoming_fragment(fragment.text, source)
 
-    return {"message": f"The fragment is saved. ID: {fragment_id}"}
+    # Step by step processing of each part
+    for fragment_data in fragments:
+        part_id = fragment_data["part_id"]
+        parent_id = fragment_data["parent_id"]
+        text = fragment_data["text_fragment"]
+        source = fragment_data["source"]
+
+        # Embedding generation
+        embedding = generate_embedding(text)
+
+        # Save in Supabase
+        await save_part_to_supabase(part_id, parent_id, source, text)
+
+        # Save in Qdrant
+        save_vector_to_qdrant(part_id, parent_id, embedding)
+
+    return {"message": f"{len(fragments)} fragments saved", "parent_id": fragments[0]["parent_id"]}
 
 # Endpoint for getting all texts
 @app.get("/get_fragments")
