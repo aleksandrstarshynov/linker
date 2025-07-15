@@ -8,19 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { API_BASE_URL } from "./config.js";
+// Fragments page setup
 export function setupFragmentsPage() {
     const section = document.getElementById("fragmentsPage");
     if (!section)
         return;
-    // Completely clear previous content
-    section.innerHTML = "";
-    // Render fragments page content
+    // Render Fragments page content
     section.innerHTML = `
     <h1>Fragments</h1>
 
     <button id="backToDashboardBtnFragments">Back to Dashboard</button>
 
     <h2>Add New Fragment</h2>
+    <input type="text" id="sourceInput" placeholder="Enter source..." />
+    <br />
     <textarea id="textInput" rows="4" cols="50" placeholder="Enter fragment..."></textarea>
     <br />
     <button id="sendBtn">Save Fragment</button>
@@ -40,27 +41,30 @@ export function setupFragmentsPage() {
     backButton.addEventListener("click", () => {
         window.switchPage("dashboard");
     });
-    // Save fragment
+    // Save fragment logic
     const sendButton = document.getElementById("sendBtn");
     const textInput = document.getElementById("textInput");
+    const sourceInput = document.getElementById("sourceInput");
     const sendResult = document.getElementById("sendResult");
     sendButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
         const text = textInput.value.trim();
-        if (!text) {
-            sendResult.textContent = "Please enter text.";
+        const source = sourceInput.value.trim();
+        if (!text || !source) {
+            sendResult.textContent = "Please enter both fragment and source.";
             return;
         }
         try {
             const response = yield fetch(`${API_BASE_URL}/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text }),
+                body: JSON.stringify({ text, source }), // ✅ Send both text and source
             });
             if (!response.ok)
                 throw new Error("Save failed");
             const data = yield response.json();
             sendResult.textContent = `Saved successfully. ID: ${data.message}`;
             textInput.value = "";
+            sourceInput.value = "";
         }
         catch (error) {
             sendResult.textContent = "Error saving fragment.";

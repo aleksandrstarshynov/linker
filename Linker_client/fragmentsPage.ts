@@ -1,19 +1,19 @@
 import { API_BASE_URL } from "./config.js";
 
+// Fragments page setup
 export function setupFragmentsPage(): void {
   const section = document.getElementById("fragmentsPage");
   if (!section) return;
 
-  // Completely clear previous content
-  section.innerHTML = "";
-
-  // Render fragments page content
+  // Render Fragments page content
   section.innerHTML = `
     <h1>Fragments</h1>
 
     <button id="backToDashboardBtnFragments">Back to Dashboard</button>
 
     <h2>Add New Fragment</h2>
+    <input type="text" id="sourceInput" placeholder="Enter source..." />
+    <br />
     <textarea id="textInput" rows="4" cols="50" placeholder="Enter fragment..."></textarea>
     <br />
     <button id="sendBtn">Save Fragment</button>
@@ -35,15 +35,18 @@ export function setupFragmentsPage(): void {
     (window as any).switchPage("dashboard");
   });
 
-  // Save fragment
+  // Save fragment logic
   const sendButton = document.getElementById("sendBtn") as HTMLButtonElement;
   const textInput = document.getElementById("textInput") as HTMLTextAreaElement;
+  const sourceInput = document.getElementById("sourceInput") as HTMLInputElement;
   const sendResult = document.getElementById("sendResult") as HTMLDivElement;
 
   sendButton.addEventListener("click", async () => {
     const text = textInput.value.trim();
-    if (!text) {
-      sendResult.textContent = "Please enter text.";
+    const source = sourceInput.value.trim();
+
+    if (!text || !source) {
+      sendResult.textContent = "Please enter both fragment and source.";
       return;
     }
 
@@ -51,7 +54,7 @@ export function setupFragmentsPage(): void {
       const response = await fetch(`${API_BASE_URL}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, source }),  // ✅ Send both text and source
       });
 
       if (!response.ok) throw new Error("Save failed");
@@ -59,6 +62,7 @@ export function setupFragmentsPage(): void {
       const data = await response.json();
       sendResult.textContent = `Saved successfully. ID: ${data.message}`;
       textInput.value = "";
+      sourceInput.value = "";
 
     } catch (error) {
       sendResult.textContent = "Error saving fragment.";

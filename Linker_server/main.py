@@ -1,58 +1,122 @@
 import uuid
-from fastapi import FastAPI
-from fastapi import Query
+import nltk
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import FragmentIn
-from supabase_client import save_fragment_to_supabase
-from supabase_client import fetch_all_fragments
-from supabase_client import search_fragments
+from supabase_client import save_part_to_supabase, fetch_all_fragments, search_fragments
 from process_fragment import process_incoming_fragment
+from embeddings import generate_embedding
+from qdrant_service import save_vector_to_qdrant, initialize_collection
+import logging
+
+# Настройка логгирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # или укажи конкретно: ["http://127.0.0.1:5500"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Endpoint for sending text and saving it in DB
+@app.on_event("startup")
+async def startup_event():
+    """Инициализация сервисов при запуске приложения"""
+    try:
+        # Инициализация Qdrant
+        initialize_collection()
+        
+        # Инициализация NLTK
+        nltk.data.path.append("C:/Users/aleks/AppData/Roaming/nltk_data")
+        
+        # Проверка и загрузка ресурсов NLTK
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt', quiet=True)
+            nltk.download('punkt_tab', quiet=True)
+        
+        logger.info("Application services initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize services: {e}")
+        raise
+
 @app.post("/submit")
 async def submit_fragment(fragment: FragmentIn):
-    source = "User input"
+    """Эндпоинт для обработки и сохранения текстовых фрагментов"""
+    try:
+        source = "User input"
+        
+        # Проверка входных данных
+        if not fragment.text.strip():
+            raise HTTPException(status_code=400, detail="Text cannot be empty")
+        
+        # Обработка фрагмента
+        fragments = process_incoming_fragment(fragment.text, source)
+        
+        if not fragments:
+            raise HTTPException(status_code=400, detail="No fragments were generated")
+        
+        # Обработка каждого фрагмента
+        for fragment_data in fragments:
+            part_id = fragment_data["part_id"]
+            parent_id = fragment_data["parent_id"]
+            text = fragment_data["text_fragment"]
+            
+            # Генерация эмбеддинга
+            try:
+                embedding = generate_embedding(text)
+            except Exception as e:
+                logger.error(f"Failed to generate embedding: {e}")
+                continue  # Пропускаем фрагмент или обрабатываем иначе
+            
+            # Сохранение в Supabase
+            try:
+                await save_part_to_supabase(part_id, parent_id, source, text)
+            except Exception as e:
+                logger.error(f"Failed to save to Supabase: {e}")
+                continue
+            
+            # Сохранение в Qdrant
+            try:
+                save_vector_to_qdrant(part_id, parent_id, embedding)
+            except Exception as e:
+                logger.error(f"Failed to save to Qdrant: {e}")
+                continue
+        
+        return {
+            "message": f"{len(fragments)} fragments processed",
+            "parent_id": fragments[0]["parent_id"]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in submit_fragment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-    # run orchestrator
-    fragments = process_incoming_fragment(fragment.text, source)
-
-    # Step by step processing of each part
-    for fragment_data in fragments:
-        part_id = fragment_data["part_id"]
-        parent_id = fragment_data["parent_id"]
-        text = fragment_data["text_fragment"]
-        source = fragment_data["source"]
-
-        # Embedding generation
-        embedding = generate_embedding(text)
-
-        # Save in Supabase
-        await save_part_to_supabase(part_id, parent_id, source, text)
-
-        # Save in Qdrant
-        save_vector_to_qdrant(part_id, parent_id, embedding)
-
-    return {"message": f"{len(fragments)} fragments saved", "parent_id": fragments[0]["parent_id"]}
-
-# Endpoint for getting all texts
 @app.get("/get_fragments")
 async def get_fragments():
-    fragments = await fetch_all_fragments()
-    return {"fragments": fragments}
+    """Получение всех фрагментов"""
+    try:
+        fragments = await fetch_all_fragments()
+        return {"fragments": fragments}
+    except Exception as e:
+        logger.error(f"Failed to fetch fragments: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch fragments")
 
-# Endpoint for getting fragments by text
 @app.get("/search")
-async def search(query: str = Query(...)):
-    results = await search_fragments(query)
-    return {"results": results}
+async def search(query: str = Query(..., min_length=1)):
+    """Поиск фрагментов по тексту"""
+    try:
+        if not query.strip():
+            raise HTTPException(status_code=400, detail="Query cannot be empty")
+        
+        results = await search_fragments(query)
+        return {"results": results}
+    except Exception as e:
+        logger.error(f"Search failed: {e}")
+        raise HTTPException(status_code=500, detail="Search failed")
