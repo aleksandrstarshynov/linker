@@ -3,6 +3,7 @@ import { setupDashboardPage } from "./dashboardPage.js";
 import { setupFragmentsPage } from "./fragmentsPage.js";
 import { setupProfilePage } from "./profilePage.js";
 import { setupMainPage } from "./mainPage.js";
+import { setupResultsPage } from "./resultsPage.js";
 
 // Function to switch between visible pages
 function switchPage(pageId: string): void {
@@ -22,7 +23,9 @@ function switchPage(pageId: string): void {
     setupFragmentsPage();
   } else if (pageId === "profile") {
     setupProfilePage();
-  }
+  } else if (pageId === "results") {
+    setupResultsPage();
+}
 }
 
 // Expose the switchPage function globally for navigation buttons

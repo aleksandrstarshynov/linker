@@ -8,6 +8,11 @@ from process_fragment import process_incoming_fragment
 from embeddings import generate_embedding
 from qdrant_service import save_vector_to_qdrant, initialize_collection
 import logging
+from qdrant_service import search_in_qdrant
+from supabase_client import fetch_fragments_by_ids
+from embeddings import embed_query
+from fastapi import APIRouter
+from qdrant_service import qdrant_service, QDRANT_COLLECTION_NAME
 
 # Настройка логгирования
 logging.basicConfig(level=logging.INFO)
@@ -120,3 +125,48 @@ async def search(query: str = Query(..., min_length=1)):
     except Exception as e:
         logger.error(f"Search failed: {e}")
         raise HTTPException(status_code=500, detail="Search failed")
+    
+@app.get("/search_vectors")
+async def search_vectors(query: str):
+    query_vector = embed_query(query)
+    fragment_ids = search_in_qdrant(query_vector, top_k=5)
+    fragments = await fetch_fragments_by_ids(fragment_ids)
+    return {"results": fragments}
+
+
+
+
+
+
+# TEST endpoint
+@app.get("/debug_qdrant")
+async def debug_qdrant():
+    result = qdrant_service.scroll(
+        collection_name=QDRANT_COLLECTION_NAME,
+        limit=1,
+        with_vectors=True  # ОБЯЗАТЕЛЬНО
+    )
+    points = result[0]
+
+    if not points:
+        return {"error": "No points found in Qdrant"}
+
+    test_point = points[0]
+
+    # Логгируем всю точку для проверки
+    print(f"Full test_point object: {test_point}")
+
+    # Пытаемся достать вектор
+    if isinstance(test_point, dict):
+        test_vector = test_point.get("vector")
+    else:
+        test_vector = getattr(test_point, "vector", None)
+
+    # Логгируем сам вектор
+    print(f"Extracted vector: {test_vector}")
+
+    return {
+        "raw_point": test_point,
+        "vector": test_vector
+    }
+

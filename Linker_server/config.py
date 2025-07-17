@@ -1,5 +1,5 @@
 SUPABASE_URL = "https://rolzpgectinslfvpbznz.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvbHpwZ2VjdGluc2xmdnBiem56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0OTE1NzUsImV4cCI6MjA2ODA2NzU3NX0.1m9A51H6cAumH_Kkt2Sx5wVuSyAkrRxs9215C02auWI"
-QDRANT_URL = "https://aed2ba6f-9acc-41a0-9a7b-f1719a3f541e.eu-central-1-0.aws.cloud.qdrant.io:6333"
-QDRANT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.lVKzTTeob-zdmqRHB-lXlQ2aDeAgswZpHPlzbMz6Zuo"
+QDRANT_URL = "https://8dee70d1-3191-4059-8143-8badc6a12ea8.eu-central-1-0.aws.cloud.qdrant.io:6333"
+QDRANT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.ZGWRabvs7xRthBWF9yPg2vRrNxFq2YF_9avcJDQV98I"
 QDRANT_COLLECTION_NAME = "fragments"

@@ -37,6 +37,15 @@ async def fetch_all_fragments():
 async def search_fragments(search_term: str):
     response = await supabase_client.from_("fragments") \
         .select("*") \
-        .ilike("text_fragment", f"%{search_term}%") \
+        .ilike("text", f"%{search_term}%") \
+        .execute()
+    return response.data
+
+# Fetch fragments by list of IDs
+async def fetch_fragments_by_ids(ids: list[str]):
+    id_list_str = ",".join(f'"{id_}"' for id_ in ids)
+    response = await supabase_client.from_("fragments") \
+        .select("*") \
+        .in_("id", f"({id_list_str})") \
         .execute()
     return response.data
