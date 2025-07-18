@@ -9,7 +9,9 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+
     permissions:
+      id-token: write
       contents: read
 
     steps:
@@ -20,26 +22,25 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies (inside Linker_server)
+      - name: Install dependencies
         run: |
           cd Linker_server
           pip install -r requirements.txt
 
-      - name: Create deployment package (zip)
+      - name: Create deployment package
         run: |
           cd Linker_server
           zip -r ../deployment.zip ./*
 
-      - name: Login to Azure
+      - name: Login to Azure using federated credentials
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4E5A7AF1570D4B71A4D1D68608584386 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C1FD1BE60FD24832A9AB64F6BE368C51 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FE1B135170DA48728A4C33F840E2D1ED }}
+          client-id: 8a623831-ffdd-4ee1-96eb-09353c8e6607
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
           app-name: 'Linker'
           slot-name: 'Production'
