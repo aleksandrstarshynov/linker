@@ -25,6 +25,11 @@ jobs:
           cd Linker_server
           pip install -r requirements.txt
 
+      - name: Create deployment package (zip)
+        run: |
+          cd Linker_server
+          zip -r ../deployment.zip ./*
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -38,4 +43,4 @@ jobs:
         with:
           app-name: 'Linker'
           slot-name: 'Production'
-          package: Linker_server
+          package: deployment.zip
