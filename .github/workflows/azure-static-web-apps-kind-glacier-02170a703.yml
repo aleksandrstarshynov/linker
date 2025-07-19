@@ -1,49 +1,46 @@
-name: Azure Static Web Apps CI/CD
+.github/workflows/azure-static-web-apps-kind-glacier-02170a703.yml at 23ad4d3
+name: Build and deploy Python app to Azure Web App - Linker
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-permissions:
-  id-token: write  # Критически важно для OIDC аутентификации
-  contents: read
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build_and_deploy_job:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Для полной истории коммитов
+      - uses: actions/checkout@v4
 
+      - name: Set up Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies (inside Linker_server)
+        run: |
+          cd Linker_server
+          pip install -r requirements.txt
+      - name: Create deployment package (zip)
+        run: |
+          cd Linker_server
+          zip -r ../deployment.zip ./*
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true  # Для PowerShell сессий
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4E5A7AF1570D4B71A4D1D68608584386 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C1FD1BE60FD24832A9AB64F6BE368C51 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FE1B135170DA48728A4C33F840E2D1ED }}
 
-      - name: Verify Azure access
-        run: az account show
-
-      - name: Build And Deploy Static App
-        uses: Azure/static-web-apps-deploy@v1
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "Linker_client"  # Путь к фронтенду
-          output_location: "dist"        # Папка с билдом
-          skip_app_build: false          # Всегда собирать приложение
-          verbose: true                  # Подробный лог
-
-      - name: Verify deployment
-        run: |
-          echo "Deployment completed successfully"
-          echo "View your app at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net"
+          app-name: 'Linker'
+          slot-name: 'Production'
+          package: deployment.zip
