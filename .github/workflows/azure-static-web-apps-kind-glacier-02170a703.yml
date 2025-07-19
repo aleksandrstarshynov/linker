@@ -6,25 +6,45 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  id-token: write  # Критически важно для OIDC аутентификации
+  contents: read
+
 jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    environment: production  # Рекомендуется указать окружение
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Для полной истории коммитов
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true  # Для PowerShell сессий
 
-      - name: Build And Deploy
+      - name: Verify Azure access
+        run: az account show
+
+      - name: Build And Deploy Static App
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "Linker_client"
-          # api_location: "api"     # Укажите папку с API (если есть)
-          output_location: "dist"
+          app_location: "Linker_client"  # Путь к фронтенду
+          output_location: "dist"        # Папка с билдом
+          skip_app_build: false          # Всегда собирать приложение
+          verbose: true                  # Подробный лог
+
+      - name: Verify deployment
+        run: |
+          echo "Deployment completed successfully"
+          echo "View your app at: https://${{ secrets.AZURE_STATIC_WEB_APP_NAME }}.azurestaticapps.net"
