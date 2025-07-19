@@ -27,4 +27,4 @@ jobs:
           action: "upload"
           app_location: "Linker_client"
           # api_location: "api"     # Укажите папку с API (если есть)
-          output_location: "build"
+          output_location: "dist"
