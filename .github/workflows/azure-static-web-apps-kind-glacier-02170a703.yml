@@ -1,46 +1,30 @@
-name: Build and deploy Python app to Azure Web App - Linker
+name: Azure Static Web Apps CI/CD
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  build_and_deploy:
+  build_and_deploy_job:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write    # обязательно для входа в Azure через OIDC
-      contents: read
-
+    name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python version
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies (inside Linker_server)
-        run: |
-          cd Linker_server
-          pip install -r requirements.txt
-
-      - name: Create deployment package (zip)
-        run: |
-          cd Linker_server
-          zip -r ../deployment.zip ./*
-
-      - name: Login to Azure using federated credentials
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: 8a623831-ffdd-4ee1-96eb-09353c8e6607       # твой Application (client) ID
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}              # Tenant ID из Azure
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}  # Subscription ID из Azure
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+      - name: Build And Deploy
+        uses: Azure/static-web-apps-deploy@v1
         with:
-          app-name: 'Linker'
-          slot-name: 'Production'
-          package: deployment.zip
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "Linker_client"
+          # api_location: "api"     # Укажите папку с API (если есть)
+          output_location: "build"
