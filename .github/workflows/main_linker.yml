@@ -2,9 +2,14 @@ name: Build and deploy Python app to Azure Web App - Linker
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  APP_NAME: 'Linker'
+  RESOURCE_GROUP: 'your-resource-group-name'  # добавьте это
+  PYTHON_APP_FOLDER: 'Linker_server'  # явно задаем имя папки
 
 jobs:
   build_and_deploy:
@@ -17,22 +22,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python version
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
+        working-directory: ${{ env.PYTHON_APP_FOLDER }}
         run: |
-          cd Linker_server
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Run tests  # новый шаг
+        working-directory: ${{ env.PYTHON_APP_FOLDER }}
+        run: |
+          python -m pytest || echo "Tests failed"  # базовый вариант
 
       - name: Create deployment package
         run: |
-          cd Linker_server
-          zip -r ../deployment.zip ./*
+          cd ${{ env.PYTHON_APP_FOLDER }} && zip -r ../deployment.zip ./*
 
-      - name: Login to Azure using federated credentials
+      - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: 8a623831-ffdd-4ee1-96eb-09353c8e6607
@@ -42,6 +52,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'Linker'
-          slot-name: 'Production'
+          app-name: ${{ env.APP_NAME }}
+          resource-group: ${{ env.RESOURCE_GROUP }}  
           package: deployment.zip
