@@ -175,7 +175,7 @@ async def debug_qdrant():
 
 # endpoint to start AI model training process
         # I use Get here even though it contradicts REST
-@app.post("/train")
+@app.get("/train")
 async def retrain_model():
     try:
         result = subprocess.run(

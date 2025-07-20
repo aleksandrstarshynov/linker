@@ -1,8 +1,27 @@
 [
   {
-    "anchor": "Как добавить пользователя?",
-    "positive": "Перейдите в раздел 'Пользователи' и нажмите 'Добавить'.",
-    "negative": "В разделе 'Отчёты' можно скачать статистику."
+    "anchor": "When was the foundation stone of the Church of St. Lawrence laid?",
+    "positive": "The foundation stone of the Great Church of St. Laurens (Grote of Sint-Laurenskerk) was laid on June 9, 1470.",
+    "negative": "The Battle of Alkmaar took place on October 2, 1799."
   },
-  ...
+  {
+    "anchor": "What happened in Alkmaar in 1573?",
+    "positive": "The siege of Alkmaar by the Spanish took place in 1573, from August 21 to October 8.",
+    "negative": "In 1865 and 1867, railways were built between Alkmaar and Den Helder."
+  },
+  {
+    "anchor": "Who designed the city walls of Alkmaar?",
+    "positive": "Adriaen Anthonisz van Alkmaar (1541–1620) was a mathematician, mayor of Alkmaar and fortification engineer who designed the city walls.",
+    "negative": "The North Holland Canal passed through Alkmaar in 1824."
+  },
+  {
+    "anchor": "When did Alkmaar receive its city rights?",
+    "positive": "On 11 June 1254, William II of Holland granted Alkmaar city rights.",
+    "negative": "In 1593, the Cheesemakers' Guild was founded in Alkmaar."
+  },
+  {
+    "anchor": "What was the reason for the demolition of the Excise Tower?",
+    "positive": "In 1924, the Excise Tower was moved 4 meters due to the expansion of the Birkade.",
+    "negative": "In 1509, construction of the town hall began and it was completed in 1520."
+  }
 ]
