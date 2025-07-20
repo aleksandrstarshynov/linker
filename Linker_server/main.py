@@ -13,6 +13,9 @@ from supabase_client import fetch_fragments_by_ids
 from embeddings import embed_query
 from fastapi import APIRouter
 from qdrant_service import qdrant_service, QDRANT_COLLECTION_NAME
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+import subprocess
 
 # Настройка логгирования
 logging.basicConfig(level=logging.INFO)
@@ -170,3 +173,26 @@ async def debug_qdrant():
         "vector": test_vector
     }
 
+# endpoint to start AI model training process
+        # I use Get here even though it contradicts REST
+@app.post("/train")
+async def retrain_model():
+    try:
+        result = subprocess.run(
+            ['python', 'train_embeddings.py'],
+            capture_output=True,
+            text=True,
+            timeout=3600
+        )
+
+        return JSONResponse({
+            "status": "completed",
+            "output": result.stdout,
+            "error": result.stderr
+        })
+
+    except subprocess.TimeoutExpired:
+        return JSONResponse({"status": "timeout", "error": "Training took too long."})
+
+    except Exception as e:
+        return JSONResponse({"status": "error", "error": str(e)})
