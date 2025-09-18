@@ -1,4 +1,6 @@
 # Linker (side project)
+For access to the repository sent a request to aleksandrstarshynov@gmail.com
+
 
 # Pitch
 A descendant in routine text data processing.
